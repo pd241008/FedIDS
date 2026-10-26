@@ -16,6 +16,8 @@ src/fedids_worker/attacks/attribution.py
 src/fedids_worker/defenses/__init__.py
 src/fedids_worker/defenses/dp.py
 src/fedids_worker/federation/__init__.py
+src/fedids_worker/federation/injection.py
+src/fedids_worker/federation/models.py
 src/fedids_worker/federation/partition.py
 src/fedids_worker/federation/simulation.py
 src/fedids_worker/gen/__init__.py
