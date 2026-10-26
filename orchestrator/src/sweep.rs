@@ -48,9 +48,11 @@ fn parse_aggregator(s: &str) -> Result<Aggregator> {
         "fedavg" => Aggregator::Fedavg,
         "fedprox" => Aggregator::Fedprox,
         "fedadam" => Aggregator::Fedadam,
+        "fedyogi" => Aggregator::Fedyogi,
         other => bail!("unknown aggregator: {other}"),
     })
 }
+
 
 fn parse_defense(s: &str) -> Result<DefenseKind> {
     Ok(match s {

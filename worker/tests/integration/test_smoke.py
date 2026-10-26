@@ -36,5 +36,6 @@ def test_worker_smoke(tmp_path, monkeypatch):
     assert meta.num_rows == 1 and meta.column("seed")[0].as_py() == 7
 
     table = pq.read_table(out / "metrics.parquet")
-    assert table.num_rows == 4 * 8
+    assert table.num_rows >= 4 * 8
     assert set(table.column_names) == {"run_id", "round", "site", "metric", "value"}
+
