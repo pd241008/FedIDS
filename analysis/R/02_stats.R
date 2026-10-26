@@ -9,11 +9,28 @@ summarise_propagation <- function(runs) {
     summarise(
       n    = n(),
       mean = mean(recall),
-      se   = sd(recall) / sqrt(n()),
+      se   = ifelse(n() > 1, sd(recall) / sqrt(n()), 0),
       .groups = "drop"
     ) |>
     mutate(
-      lower = mean - qt(0.975, pmax(n - 1, 1)) * se,
-      upper = mean + qt(0.975, pmax(n - 1, 1)) * se
+      lower = pmax(0, mean - qt(0.975, pmax(n - 1, 1)) * se),
+      upper = pmin(1, mean + qt(0.975, pmax(n - 1, 1)) * se)
     )
 }
+
+summarise_skew_tau <- function(runs) {
+  runs |>
+    filter(metric == "tau_0.80") |>
+    group_by(num_sites, skew) |>
+    summarise(
+      n        = n(),
+      mean_tau = mean(value),
+      se_tau   = ifelse(n() > 1, sd(value) / sqrt(n()), 0),
+      .groups  = "drop"
+    ) |>
+    mutate(
+      lower = pmax(0, mean_tau - qt(0.975, pmax(n - 1, 1)) * se_tau),
+      upper = mean_tau + qt(0.975, pmax(n - 1, 1)) * se_tau
+    )
+}
+

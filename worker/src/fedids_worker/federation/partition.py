@@ -133,11 +133,13 @@ def partition_dirichlet(
         y = c_df["label"].to_numpy(dtype=np.int64)
         fam = c_df["family"].to_numpy()
 
-        # 80/20 stratified train/test split locally
-        strat = y if len(np.unique(y)) > 1 else None
+        # 80/20 train/test split locally (stratified only if all classes have >= 2 samples)
+        unique_classes, class_counts = np.unique(y, return_counts=True)
+        strat = y if (len(unique_classes) > 1 and np.min(class_counts) >= 2) else None
         train_X_raw, test_X_raw, train_y, test_y, train_fam, test_fam = train_test_split(
             X, y, fam, test_size=test_ratio, random_state=seed + i, stratify=strat
         )
+
 
         # Fit StandardScaler STRICTLY on local warm-up training set
         scaler = StandardScaler()
