@@ -1,0 +1,11 @@
+protobuf>=5
+pyarrow>=15
+numpy>=1.26
+
+[dev]
+pytest>=8
+grpcio-tools>=1.60
+
+[fl]
+flwr[simulation]>=1.8
+torch>=2.2

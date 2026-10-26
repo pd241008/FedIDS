@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: fedids-worker
+Version: 0.1.0
+Summary: Python worker: federation simulation, attacks, defenses
+Requires-Python: >=3.11
+Requires-Dist: protobuf>=5
+Requires-Dist: pyarrow>=15
+Requires-Dist: numpy>=1.26
+Provides-Extra: fl
+Requires-Dist: flwr[simulation]>=1.8; extra == "fl"
+Requires-Dist: torch>=2.2; extra == "fl"
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+Requires-Dist: grpcio-tools>=1.60; extra == "dev"
