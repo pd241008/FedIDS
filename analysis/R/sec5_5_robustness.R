@@ -66,10 +66,12 @@ write_robustness_table <- function(f) {
   cat("\\begin{tabular}{llcccc}\n\\toprule\n")
   cat("Operational Perturbation & Setting & $\\tau_{0.80}$ (rnd) & Top-1 Acc (\\%) & Timing MAE (rnd) & Known $F_1$ \\\\\n\\midrule\n")
   for (i in 1:nrow(robustness_summary)) {
-    row <- robustness_summary[i, ]
+    r <- robustness_summary[i, ]
+    clean_setting <- gsub("Delta t_SOC", "$\\\\Delta t_{\\\\text{SOC}}$", r$setting)
     cat(sprintf("%s & %s & %s & %s & %s & %s \\\\\n",
-                row$perturbation, row$setting, row$Tau_Formatted, row$Top1_Formatted, row$MAE_Formatted, row$F1_Formatted))
+                r$perturbation, clean_setting, r$Tau_Formatted, r$Top1_Formatted, r$MAE_Formatted, r$F1_Formatted))
   }
+
   cat("\\bottomrule\n\\end{tabular}\n\\end{table}\n")
   sink()
 }
