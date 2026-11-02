@@ -80,10 +80,17 @@ def partition_dirichlet(
     if "family" not in df.columns:
         raise ValueError(f"Dataset at {path} must contain 'family' column")
 
+    # Feature columns detection
+    if all(c in df.columns for c in CANONICAL_66_FEATURES):
+        feature_cols = CANONICAL_66_FEATURES
+    else:
+        cols_to_drop = ["family", "label", "attack_cat", "Attack", "Label", "id"]
+        feature_cols = [c for c in df.columns if c not in cols_to_drop]
+
     # Validate zero_day_family
-    if zero_day_family not in MACRO_FAMILIES:
-        # Default fallback to Infiltration if unspecified/placeholder
-        zero_day_family = "Infiltration"
+    available_families = [f for f in df["family"].unique() if f != "Benign"]
+    if zero_day_family not in available_families:
+        zero_day_family = available_families[0] if available_families else "Infiltration"
 
     # Separate zero-day f*
     zd_mask = (df["family"] == zero_day_family)
@@ -91,14 +98,14 @@ def partition_dirichlet(
     baseline_df = df[~zd_mask].copy()
 
     # Split zero-day into 50% training pool (for origin injection) and 50% test set (for evaluation)
-    zd_feat = zero_day_df[CANONICAL_66_FEATURES].to_numpy(dtype=np.float32)
+    zd_feat = zero_day_df[feature_cols].to_numpy(dtype=np.float32)
     zd_lbl = zero_day_df["label"].to_numpy(dtype=np.int64)
     zd_train_X_raw, zd_test_X_raw, zd_train_y, zd_test_y = train_test_split(
         zd_feat, zd_lbl, test_size=0.5, random_state=seed, stratify=zd_lbl if len(np.unique(zd_lbl)) > 1 else None
     )
 
     # Partition Benign and known families across N sites using Dir_N(alpha)
-    families_to_partition = ["Benign"] + [f for f in MACRO_FAMILIES if f != zero_day_family]
+    families_to_partition = ["Benign"] + [f for f in available_families if f != zero_day_family]
     client_indices: Dict[int, List[int]] = {i: [] for i in range(num_sites)}
 
     for fam in families_to_partition:
@@ -129,7 +136,7 @@ def partition_dirichlet(
             idx = rng.choice(baseline_df.index.to_numpy(), size=max(100, len(baseline_df) // num_sites), replace=True)
 
         c_df = baseline_df.loc[idx]
-        X = c_df[CANONICAL_66_FEATURES].to_numpy(dtype=np.float32)
+        X = c_df[feature_cols].to_numpy(dtype=np.float32)
         y = c_df["label"].to_numpy(dtype=np.int64)
         fam = c_df["family"].to_numpy()
 

@@ -145,7 +145,16 @@ def run_federation(cfg: "config_pb2.RunConfig", trace_recorder=None) -> list[dic
     defense = cfg.defense
 
     dataset_path = cfg.dataset.processed_dir if cfg.dataset.processed_dir else "datasets/processed"
-    cleaned_file = Path(dataset_path) / "cleaned_cic2018.parquet"
+    if cfg.dataset.name:
+        candidate = Path(dataset_path) / f"{cfg.dataset.name}.parquet"
+        if candidate.exists():
+            cleaned_file = candidate
+        elif Path(cfg.dataset.name).exists():
+            cleaned_file = Path(cfg.dataset.name)
+        else:
+            cleaned_file = Path(dataset_path) / "cleaned_cic2018.parquet"
+    else:
+        cleaned_file = Path(dataset_path) / "cleaned_cic2018.parquet"
     if not cleaned_file.exists():
         cleaned_file = Path("datasets/processed/cleaned_cic2018.parquet")
 
@@ -159,7 +168,8 @@ def run_federation(cfg: "config_pb2.RunConfig", trace_recorder=None) -> list[dic
     )
 
     # Initialize models
-    global_model = create_model("mlp", in_features=66, num_classes=2).to(device)
+    in_features = client_splits[0].train_X.shape[1]
+    global_model = create_model("mlp", in_features=in_features, num_classes=2).to(device)
 
     # Injection hook
     injection_hook = ZeroDayInjectionHook(
