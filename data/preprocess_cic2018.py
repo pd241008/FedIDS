@@ -248,7 +248,7 @@ def process_dataset(raw_dir: Path, processed_path: Path, max_samples: int | None
     csv_files = sorted(glob.glob(str(raw_dir / "*.csv")) + glob.glob(str(raw_dir / "*/*.csv")))
 
     # Check centralized datasets location if raw_dir is empty
-    fallback_dir = Path("/root/workspace/workspace/03-Code/Projects/Legacy/centralized_datasets/raw/cicids2017")
+    fallback_dir = Path(os.environ.get("CENTRALIZED_DATASETS_DIR", str(raw_dir)))
     if not csv_files and fallback_dir.exists():
         csv_files = sorted(glob.glob(str(fallback_dir / "*.csv")))
 
